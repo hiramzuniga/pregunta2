@@ -100,10 +100,8 @@ public class Preguntas{
         this.box4.show();
         this.box5.show();
         this.preguntaS.show();
-        //this.preguntaE.show();
         preguntaE.show();
         this.respuestaS.show();
-        //this.guardar.show();
         guardar.show();
         this.box.show(); 
         
@@ -122,11 +120,7 @@ public class guardarC {
         Object respuestaAs, Object respuestaBs, Object respuestaCs, 
         Object respuestaDs) { 
 
-        //var app = new App();
-        //app.jugar();
-
         App aplicacion = new App ();
-        //public Gtk.Entry preguntaE;
         string str = preguntaE.get_text (); 
         stdout.printf ("Pregunta %s\n", str); 
 
@@ -163,27 +157,20 @@ public class guardarC {
         stderr.printf ("Esto tiene apicacion.ec %d\n", aplicacion.ec);
 
         int ec = Sqlite.Database.open ("test.db", out db2);
-        //int ec = sqlite3_open_v2("test.db", &db2, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL );
 
         string errmsg;
-        //int ec = Sqlite.Database.open ("test.db", out db);
-        string query = "INSERT INTO preguntas (pregunta, respuesta1, respuesta2, respuesta3, respuesta4, correcto)" + "VALUES ('%s', '%s', '%s', '%s', '%s', '%d');".printf(str, str2, str3, str4, str5, correcta);
+        string query = "INSERT INTO preguntas (pregunta, respuesta1, respuesta2, respuesta3, respuesta4, correcto)"
+        + "VALUES ('%s', '%s', '%s', '%s', '%s', '%d');".printf(str, str2, str3, str4, str5, correcta);
 
         stderr.printf ("Que tiene String: %s\n", query);
 
-        //ec = db.exec (query, null, out errmsg);
-
-        //aplicacion.db.exec (query);
-
-        //ec = db2.exec (query);
         ec = db2.exec (query, null, out errmsg);
 
         if (ec != Sqlite.OK) {
             stderr.printf ("Error: %s\n", errmsg);  
         }
- 
 
-        }
+    }
 
 }//fin de la clase preguntas
 
@@ -242,7 +229,6 @@ public class App {
             var app1 = new Preguntas();
             app1.crearPreguntas();
             this.window.hide ();   
-
         });
 
         this.open_button = new Gtk.ToolButton.from_stock (Gtk.Stock.OPEN);
@@ -285,14 +271,42 @@ public class App {
 
         this.box2 = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
         var button1 = new Gtk.Button.with_label ("50%");
-        var button2 = new Gtk.Button.with_label ("congelar");
-        var button3 = new Gtk.Button.with_label ("passar");
+        var button2 = new Gtk.Button.with_label ("Reiniciar");
+        var button3 = new Gtk.Button.with_label ("Siguiente");
         this.box2.pack_start(button1);
         this.box2.pack_start(button2);
         this.box2.pack_start(button3);
         button1.show();
         button2.show();
         button3.show();
+
+        button1.clicked.connect(() => {
+            if(this.c == "1"){
+                this.resposta2.set_sensitive(false);
+                this.resposta3.set_sensitive(false);
+            }
+            else if(this.c == "2"){
+                this.resposta4.set_sensitive(false);
+                this.resposta3.set_sensitive(false);
+            }
+            else if(this.c == "3"){
+                this.resposta1.set_sensitive(false);
+                this.resposta4.set_sensitive(false);
+            }
+            else {
+                this.resposta2.set_sensitive(false);
+                this.resposta3.set_sensitive(false);
+            }
+            });
+
+        button2.clicked.connect(() =>{
+            this.barra_tiempo.set_fraction(0);
+            });
+
+        button3.clicked.connect(() =>{
+                this.bd_select_preguntas();
+                this.next_pregunta();
+            });
 
         this.box.pack_start (toolbar);
         this.box.pack_start (pregunta);
@@ -386,7 +400,7 @@ public class App {
                     correcto    INT
                 );
 
-                INSERT INTO preguntas (pregunta, respuesta1, respuesta2, respuesta3, respuesta4, correcto) VALUES ('es desdelinux un buen blog', 'no es ningun blog', 'no', 'si', 'hola', 3);
+                INSERT INTO preguntas (pregunta, respuesta1, respuesta2, respuesta3, respuesta4, correcto) VALUES ('Cual es el lema de Bender', 'Besa mi boca metalica', 'Eres tu Fry', 'Besa mi brillante trasero metalico', 'Soy Bender Rodriguez', 3);
                 INSERT INTO preguntas (pregunta, respuesta1, respuesta2, respuesta3, respuesta4, correcto) VALUES ('5+5', '25', '10', '3', '5', 2);
                 ";
     
@@ -403,6 +417,12 @@ public class App {
      }
 
     private void bd_select_preguntas () {
+        //coloca todo a true si el usuario utilizo el botón 50%
+        this.resposta1.set_sensitive(true);
+        this.resposta2.set_sensitive(true);
+        this.resposta3.set_sensitive(true);
+        this.resposta4.set_sensitive(true);
+
         string query = "SELECT pregunta, respuesta1, respuesta2, respuesta3, respuesta4, correcto FROM preguntas ORDER BY RANDOM()";
         int rc = db.prepare_v2 (query, -1, out stmt, null );
         int cols = stmt.column_count();
@@ -433,7 +453,6 @@ public class App {
                        else{
                            c = txt;
                        }
-                       //print ("%s = %s\n", stmt.column_name (col), txt);
                    }
                    break;
               default:
