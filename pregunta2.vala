@@ -211,7 +211,7 @@ public class App {
         this.punts = 0;
 
         this.window = new Gtk.Window ();
-        this.window.title = "app";
+        this.window.title = "Pregunta2";
         this.window.window_position = Gtk.WindowPosition.CENTER;
         this.window.set_default_size (300, 340);
         this.window.destroy.connect (Gtk.main_quit);
@@ -332,6 +332,16 @@ public class App {
         this.resposta3.show();
         this.resposta4.show();
         this.box.show(); 
+
+        try {
+            // Either directly from a file …
+            window.icon = new Gdk.Pixbuf.from_file ("data/icon.png");
+            // … or from the theme
+            //window.icon = IconTheme.get_default ().load_icon (“icon.png”, 48, 0);
+            } catch (Error e) {
+                stderr.printf ("Could not load application icon: %s\n", e.message);
+            }
+        
         
         this.window.show ();   
     }
